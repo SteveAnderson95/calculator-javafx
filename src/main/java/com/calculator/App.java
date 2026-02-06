@@ -10,6 +10,7 @@ public class App extends Application
     @Override
     public void start(Stage primaryStage) {
         Scene scene = new Scene(new CalculatorView());
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }

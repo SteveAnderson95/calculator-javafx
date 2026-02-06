@@ -1,0 +1,47 @@
+/* Fond de l'app */
+.root {
+    -fx-background-color : #333;
+}
+
+/* Style général des boutons */
+.button {
+    -fx-background-color : #4a4a4a;
+    -fx-text-fill : white;
+    -fx-font-size : 19px;
+    -fx-font-weight : bold;
+    -fx-background-radius : 5;
+}
+.button:hover {
+    -fx-background-color : #5a5a5a;
+}
+
+/* Style pour le bouton "=" */
+.equal-button {
+    -fx-background-color : #d35400;
+}
+.equal-button:hover {
+    -fx-background-color : #e67e22;
+}
+
+/* Style pour le input */
+.text-field {
+    -fx-background-color : #5a5a5a;
+    -fx-text-fill : white;
+    -fx-font-size : 24px;
+    -fx-background-radius: 0 0 10 10;
+    -fx-margin-bottom: 20;
+}
+
+.list-view {
+    -fx-background-color: #4a4a4a;
+    -fx-background-radius: 10 10 0 0;
+}
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff;
+    -fx-font-size : 20px;
+    -fx-alignment: center;
+}
+.list-cell:filled:hover {
+    -fx-background-color: #3a3a3a;
+}
