@@ -16,10 +16,10 @@
 }
 
 /* Style pour le bouton "=" */
-.equal-button {
+.special-button {
     -fx-background-color : #d35400;
 }
-.equal-button:hover {
+.special-button:hover {
     -fx-background-color : #e67e22;
 }
 
@@ -35,6 +35,10 @@
 .list-view {
     -fx-background-color: #4a4a4a;
     -fx-background-radius: 10 10 0 0;
+}
+.list-view .scroll-bar:horizontal {
+    -fx-opacity : 0;
+    -fx-padding : -7;
 }
 .list-cell {
     -fx-background-color: transparent;

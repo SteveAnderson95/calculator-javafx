@@ -22,23 +22,33 @@ public class CalculatorController {
     }
 
     public void manageLogic(String input) {
+        String expression = view.getDisplayText().replace("*", " × ")
+                .replace("/", " ÷ ");
+        double result = model.calculate(expression);
         if (input.equals("=")) {
-            String expression = view.getDisplayText();
-            double result = model.calculate(expression);
             if (Double.isNaN(result)) {
                 view.setDisplayText("Erreur");
             }
             else {
                 view.setDisplayText(String.valueOf(result));
                 String historyLine = String.format("%-50s %10s %20s", expression, "=", result);
-                view.addHistory(historyLine);
+                view.addHistory(expression, String.valueOf(result));
             }
         }
-        else if (input.equals("C")) {
+        else if (input.equals("AC")) {
             view.setDisplayText("");
         }
+        else if (input.equals("DEL")) {
+            view.setDisplayText(expression.substring(0, expression.length()-1));
+        }
+        else if (input.equals("√")) {
+            view.setDisplayText(expression + "√(");
+        }
+        else if (input.equals("X²")) {
+            view.setDisplayText(expression + "²");
+        }
         else {
-            view.setDisplayText(view.getDisplayText() + input);
+            view.setDisplayText(expression + input);
         }
     }
 }
