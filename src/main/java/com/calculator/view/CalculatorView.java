@@ -17,69 +17,133 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-
 public class CalculatorView extends VBox {
-    public TextField operationInput = new TextField();
-    GridPane buttons = new GridPane();
-    ObservableList<HBox> resultsList = FXCollections.observableArrayList();
+
+    // Composants de l'interface
+    private final TextField operationInput;
+    private final GridPane buttonsGrid;
+    private final ObservableList<HBox> historyList;
+
+    // Configuration des boutons
+    private static final String[] BUTTON_LABELS = {
+            "mod", "(", ")", "DEL", "AC",
+            "7", "8", "9", "÷", "√",
+            "4", "5", "6", "×", "X²",
+            "1", "2", "3", "-", "=",
+            "0", ".", "%", "+"
+    };
+
+    private static final int BUTTON_COLUMNS = 5;
+    private static final int BUTTON_WIDTH = 120;
+    private static final int BUTTON_HEIGHT = 50;
 
     public CalculatorView() {
-        //Input for operations & displaying results
-        ListView<HBox> resultsListView = new ListView<>(resultsList);
-        resultsListView.setFocusTraversable(false);
+        this.operationInput = new TextField();
+        this.buttonsGrid = new GridPane();
+        this.historyList = FXCollections.observableArrayList();
+
+        initializeComponents();
+        setupLayout();
+    }
+
+    private void initializeComponents() {
+        setupOperationInput();
+        setupButtonsGrid();
+    }
+
+    private void setupOperationInput() {
+        operationInput.setEditable(true);
+        operationInput.setFocusTraversable(true);
+
+        // Focus automatique au démarrage
         Platform.runLater(() -> operationInput.requestFocus());
+
+        // Formatage automatique de l'affichage
         operationInput.textProperty().addListener((obs, oldText, newText) -> {
-            Platform.runLater(() -> {
-                operationInput.positionCaret(operationInput.getText().length());
-            });
+            formatDisplayText(newText);
+            // Placer le curseur à la fin
+            Platform.runLater(() ->
+                    operationInput.positionCaret(operationInput.getText().length())
+            );
         });
-        operationInput.textProperty().addListener((obs, oldText, newText) -> {
-            String clean = newText.replace(" ", "");
-            operationInput.setText(clean.replace("*", " × ")
-                    .replace("/", " ÷ ")
-                    .replace("mod", " mod ")
-                    .replace("+", " + ")
-                    .replace("-", " - ")
-                    .replace("%", " % ")
-                    .replace("×", " × ")
-                    .replace("÷", " ÷ ")
-                    .replace("=", " = "));
-        });
-        VBox header = new VBox(resultsListView, operationInput);
-        VBox.setVgrow(resultsListView, Priority.ALWAYS);
+    }
+
+    private void formatDisplayText(String text) {
+        if (text == null) return;
+
+        String formatted = text
+                .replace(" ", "")           // Enlever tous les espaces d'abord
+                .replace("*", " × ")
+                .replace("/", " ÷ ")
+                .replace("mod", " mod ")
+                .replace("+", " + ")
+                .replace("-", " - ")
+                .replace("%", " % ")
+                .replace("×", " × ")
+                .replace("÷", " ÷ ")
+                .replace("=", " = ");
+
+        // Éviter la boucle infinie en vérifiant si le texte a changé
+        if (!formatted.equals(operationInput.getText())) {
+            operationInput.setText(formatted);
+        }
+    }
+
+    private void setupButtonsGrid() {
+        buttonsGrid.setHgap(5);
+        buttonsGrid.setVgap(5);
+
+        for (int i = 0; i < BUTTON_LABELS.length; i++) {
+            Button button = createButton(BUTTON_LABELS[i], i);
+            addButtonToGrid(button, BUTTON_LABELS[i], i);
+        }
+    }
+
+    private Button createButton(String label, int index) {
+        Button button = new Button(label);
+        button.setFocusTraversable(false);
+        GridPane.setHgrow(button, Priority.ALWAYS);
+        GridPane.setVgrow(button, Priority.ALWAYS);
+
+        // Style spécial pour certains boutons
+        if (isSpecialButton(label)) {
+            button.getStyleClass().add("special-button");
+        }
+
+        return button;
+    }
+
+    private boolean isSpecialButton(String label) {
+        return label.equals("=") || label.equals("DEL") || label.equals("AC");
+    }
+
+    private void addButtonToGrid(Button button, String label, int index) {
+        int col = index % BUTTON_COLUMNS;
+        int row = index / BUTTON_COLUMNS;
+
+        if (label.equals("=")) {
+            // Le bouton = prend 2 lignes
+            buttonsGrid.add(button, col, row, 1, 2);
+            button.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT * 2);
+            button.setDefaultButton(true);  // Activé par la touche Entrée
+        } else {
+            buttonsGrid.add(button, col, row);
+            button.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        }
+    }
+
+    private void setupLayout() {
+        // Liste de l'historique
+        ListView<HBox> historyListView = new ListView<>(historyList);
+        historyListView.setFocusTraversable(false);
+
+        // En-tête (historique + input)
+        VBox header = new VBox(historyListView, operationInput);
+        VBox.setVgrow(historyListView, Priority.ALWAYS);
         header.getStyleClass().add("header");
 
-        //Buttons
-        buttons.setHgap(5);
-        buttons.setVgap(5);
-        String[] buttonsLabels = {"mod", "(", ")", "DEL", "AC", "7", "8", "9", "÷", "√",
-            "4", "5", "6", "×", "X²", "1", "2", "3", "-", "=", "0", ".", "%", "+"
-        };
-        for (int i = 0; i < buttonsLabels.length; i ++) {
-            Button button = new Button(buttonsLabels[i]);
-            button.setFocusTraversable(false);
-            GridPane.setHgrow(button, Priority.ALWAYS);
-            GridPane.setVgrow(button, Priority.ALWAYS);
-            int col = i % 5;
-            int row = i / 5;
-            if (buttonsLabels[i].equals("=")) {
-                buttons.add(button, col, row, 1, 2);
-                button.getStyleClass().add("special-button");
-                button.setPrefSize(120, 100);
-                button.setDefaultButton(true);
-            }
-            else if (buttonsLabels[i].equals("DEL") || buttonsLabels[i].equals("AC")) {
-                buttons.add(button, col, row);
-                button.getStyleClass().add("special-button");
-                button.setPrefSize(120, 50);
-            }
-            else {
-                buttons.add(button, col, row);
-                button.setPrefSize(120, 50);
-            }
-        }
-        //Main Container
-        VBox container = new VBox(15, header, buttons);
+        // Conteneur principal
+        VBox container = new VBox(15, header, buttonsGrid);
         container.setMaxSize(600, Double.MAX_VALUE);
         container.setPadding(new Insets(10, 0, 10, 0));
         VBox.setVgrow(header, Priority.ALWAYS);
@@ -89,18 +153,18 @@ public class CalculatorView extends VBox {
         this.setAlignment(Pos.CENTER);
     }
 
-    public void setOnButtonClick (EventHandler<ActionEvent> manager) {
-        for (var node : buttons.getChildren()) {
-            if (node instanceof Button button)
-                button.setOnAction(manager);
-        }
+    public void setOnButtonClick(EventHandler<ActionEvent> handler) {
+        buttonsGrid.getChildren().stream()
+                .filter(node -> node instanceof Button)
+                .map(node -> (Button) node)
+                .forEach(button -> button.setOnAction(handler));
     }
 
-    public void setDisplayText (String text) {
+    public void setDisplayText(String text) {
         operationInput.setText(text);
     }
 
-    public String getDisplayText () {
+    public String getDisplayText() {
         return operationInput.getText();
     }
 
@@ -108,13 +172,16 @@ public class CalculatorView extends VBox {
         Label expressionLabel = new Label(expression);
         expressionLabel.setPrefWidth(300);
         expressionLabel.setTextFill(Color.WHITE);
+
+        Label equalLabel = new Label(" = ");
+        equalLabel.setTextFill(Color.WHITE);
+
         Label resultLabel = new Label(result);
         resultLabel.setPrefWidth(200);
         resultLabel.setTextFill(Color.WHITE);
         resultLabel.setAlignment(Pos.CENTER_RIGHT);
-        Label equalLabel = new Label(" = ");
-        equalLabel.setTextFill(Color.WHITE);
-        HBox line = new HBox(20, expressionLabel, equalLabel, resultLabel);
-        resultsList.add(0, line);
+
+        HBox historyLine = new HBox(20, expressionLabel, equalLabel, resultLabel);
+        historyList.add(0, historyLine);
     }
 }

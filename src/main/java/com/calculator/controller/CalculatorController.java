@@ -1,54 +1,86 @@
 package com.calculator.controller;
 
 import com.calculator.model.CalculatorModel;
+import com.calculator.model.CalculatorModel.CalculationException;
 import com.calculator.view.CalculatorView;
 import javafx.scene.control.Button;
 
 public class CalculatorController {
 
-    private CalculatorView view;
-    private CalculatorModel model;
+    private final CalculatorView view;
+    private final CalculatorModel model;
 
     public CalculatorController(CalculatorView view, CalculatorModel model) {
         this.view = view;
         this.model = model;
 
-        this.view.setOnButtonClick(e -> {
-            Button clickedButton = (Button) e.getSource();
-            String buttonText = clickedButton.getText();
+        initializeEventHandlers();
+    }
 
-            manageLogic(buttonText);
+    private void initializeEventHandlers() {
+        view.setOnButtonClick(event -> {
+            Button clickedButton = (Button) event.getSource();
+            String buttonText = clickedButton.getText();
+            handleButtonClick(buttonText);
         });
     }
 
-    public void manageLogic(String input) {
-        String expression = view.getDisplayText().replace("*", " × ")
-                .replace("/", " ÷ ");
-        double result = model.calculate(expression);
-        if (input.equals("=")) {
-            if (Double.isNaN(result)) {
-                view.setDisplayText("Erreur");
-            }
-            else {
-                view.setDisplayText(String.valueOf(result));
-                String historyLine = String.format("%-50s %10s %20s", expression, "=", result);
-                view.addHistory(expression, String.valueOf(result));
-            }
+    private void handleButtonClick(String input) {
+        switch (input) {
+            case "=" -> calculateResult();
+            case "AC" -> clearDisplay();
+            case "DEL" -> deleteLastCharacter();
+            case "√" -> appendToDisplay("√(");
+            case "X²" -> appendToDisplay("²");
+            default -> appendToDisplay(input);
         }
-        else if (input.equals("AC")) {
-            view.setDisplayText("");
+    }
+
+    private void calculateResult() {
+        String expression = view.getDisplayText();
+
+        if (expression.isEmpty()) {
+            return;
         }
-        else if (input.equals("DEL")) {
-            view.setDisplayText(expression.substring(0, expression.length()-1));
+
+        try {
+            double result = model.calculate(expression);
+            String resultStr = formatResult(result);
+
+            // Ajouter à l'historique
+            view.addHistory(expression, resultStr);
+
+            // Afficher le résultat
+            view.setDisplayText(resultStr);
+
+        } catch (CalculationException e) {
+            view.setDisplayText("Erreur: " + e.getMessage());
         }
-        else if (input.equals("√")) {
-            view.setDisplayText(expression + "√(");
+    }
+
+    private String formatResult(double result) {
+        // Si c'est un entier, afficher sans décimales
+        if (result == Math.floor(result) && !Double.isInfinite(result)) {
+            return String.valueOf((long) result);
         }
-        else if (input.equals("X²")) {
-            view.setDisplayText(expression + "²");
+        // Sinon, limiter à 10 décimales max
+        return String.format("%.10f", result).replaceAll("0*$", "").replaceAll("\\.$", "");
+    }
+
+    private void clearDisplay() {
+        view.setDisplayText("");
+    }
+
+    private void deleteLastCharacter() {
+        String current = view.getDisplayText();
+        if (!current.isEmpty()) {
+            // Supprimer le dernier caractère en tenant compte des espaces
+            view.setDisplayText(current.substring(0, Math.max(0, current.length() - 1)));
         }
-        else {
-            view.setDisplayText(expression + input);
-        }
+    }
+
+    private void appendToDisplay(String text) {
+        String current = view.getDisplayText();
+        view.setDisplayText(current + text);
     }
 }
