@@ -36,7 +36,7 @@ Une calculatrice desktop développée avec JavaFX, inspirée du design de la cal
 
 1. **Cloner le dépôt**
    ```bash
-   git clone https://github.com/[ton-username]/calculator-javafx.git
+   git clone https://github.com/SteveAnderson95/calculator-javafx.git
    cd calculator-javafx
    ```
 
