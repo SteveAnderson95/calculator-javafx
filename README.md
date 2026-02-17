@@ -4,7 +4,7 @@
 ![JavaFX](https://img.shields.io/badge/JavaFX-21-blue?style=flat-square)
 ![Maven](https://img.shields.io/badge/Maven-3.6+-red?style=flat-square&logo=apache-maven)
 
-Une calculatrice moderne et élégante développée avec JavaFX, inspirée du design de la calculatrice GNOME sous Ubuntu.
+Une calculatrice desktop développée avec JavaFX, inspirée du design de la calculatrice GNOME sous Ubuntu.
 
 ![screenshot.png](screenshot.png)
 ## Fonctionnalités
